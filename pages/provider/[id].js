@@ -1,256 +1,374 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import Image from 'next/image';
 import Link from 'next/link';
+import { useApp } from '../../contexts/AppContext';
 import { 
   Star, 
   MapPin, 
-  Clock, 
-  MessageCircle, 
   Phone, 
-  Calendar,
-  ChevronLeft,
-  CheckCircle,
-  Camera
+  MessageCircle, 
+  CheckCircle, 
+  Clock,
+  Award,
+  Users,
+  ArrowLeft,
+  Send
 } from 'lucide-react';
-import { serviceProviders, reviews } from '../../data/mockData';
+import { MOCK_PROVIDERS, formatDistance, calculateDistance } from '../../data/mockData';
 
 export default function ProviderProfile() {
   const router = useRouter();
   const { id } = router.query;
-  const [activeTab, setActiveTab] = useState('about');
+  const { userLocation, addRequest, currentUser, isCustomer } = useApp();
+  const [provider, setProvider] = useState(null);
+  const [distance, setDistance] = useState(null);
+  const [showRequestForm, setShowRequestForm] = useState(false);
+  const [requestMessage, setRequestMessage] = useState('');
+  const [selectedService, setSelectedService] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const provider = serviceProviders.find(p => p.id === id);
-  const providerReviews = reviews.filter(r => r.providerId === id);
+  useEffect(() => {
+    if (id) {
+      const foundProvider = MOCK_PROVIDERS.find(p => p.id === id);
+      if (foundProvider) {
+        setProvider(foundProvider);
+        const dist = calculateDistance(
+          userLocation.lat,
+          userLocation.lng,
+          foundProvider.location.lat,
+          foundProvider.location.lng
+        );
+        setDistance(dist);
+      }
+    }
+  }, [id, userLocation]);
+
+  const renderStars = (rating) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        className={`w-5 h-5 ${
+          i < Math.floor(rating)
+            ? 'text-yellow-400 fill-current'
+            : 'text-neutral-300'
+        }`}
+      />
+    ));
+  };
+
+  const handleSendRequest = async (e) => {
+    e.preventDefault();
+    if (!requestMessage.trim() || !selectedService) return;
+
+    setLoading(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      const newRequest = addRequest({
+        userId: currentUser.id,
+        providerId: provider.id,
+        service: selectedService,
+        message: requestMessage.trim(),
+        location: userLocation
+      });
+
+      setLoading(false);
+      setShowRequestForm(false);
+      setRequestMessage('');
+      setSelectedService('');
+      
+      // Redirect to chat
+      router.push(`/chat/${newRequest.id}`);
+    }, 1000);
+  };
 
   if (!provider) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="min-h-screen bg-background-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">Provider not found</h2>
-          <Link href="/" className="text-primary-600 hover:text-primary-700">
-            Return to search
-          </Link>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-500 mx-auto mb-4"></div>
+          <p className="text-neutral-600">Loading provider...</p>
         </div>
       </div>
     );
   }
 
-  const tabs = [
-    { id: 'about', name: 'About' },
-    { id: 'services', name: 'Services' },
-    { id: 'portfolio', name: 'Portfolio' },
-    { id: 'reviews', name: `Reviews (${providerReviews.length})` },
-  ];
-
   return (
     <>
       <Head>
         <title>{provider.name} - {provider.category} | Boadwuma</title>
-        <meta name="description" content={provider.description} />
+        <meta name="description" content={`${provider.description} - ${provider.experience} experience`} />
       </Head>
 
-      <div className="pb-20 lg:pb-4">
+      <div className="min-h-screen bg-background-50">
         {/* Header */}
-        <div className="bg-white border-b">
-          <div className="max-w-6xl mx-auto px-4 py-4">
+        <div className="bg-white border-b border-neutral-200 sticky top-16 z-30">
+          <div className="max-w-7xl mx-auto px-4 py-4">
             <button
               onClick={() => router.back()}
-              className="flex items-center text-gray-600 hover:text-gray-900 mb-3 sm:mb-4 text-sm sm:text-base"
+              className="flex items-center text-neutral-600 hover:text-neutral-900 transition-colors"
             >
-              <ChevronLeft size={18} className="sm:w-5 sm:h-5 mr-1" />
+              <ArrowLeft className="w-5 h-5 mr-2" />
               Back
             </button>
+          </div>
+        </div>
 
-            <div className="flex flex-col md:flex-row md:items-start space-y-3 sm:space-y-4 md:space-y-0 md:space-x-4 lg:space-x-6">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          {/* Provider Info Card */}
+          <div className="bg-white rounded-xl shadow-card border border-neutral-100 p-6 mb-6">
+            <div className="flex items-start space-x-6">
               {/* Avatar */}
               <div className="relative">
-                <Image
+                <img
                   src={provider.avatar}
                   alt={provider.name}
-                  width={100}
-                  height={100}
-                  className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-full object-cover"
+                  className="w-24 h-24 rounded-full object-cover"
+                  onError={(e) => {
+                    e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(provider.name)}&background=2B4C7E&color=fff`;
+                  }}
                 />
-                <div className={`absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 rounded-full border-2 sm:border-3 md:border-4 border-white ${
-                  provider.isAvailable ? 'bg-green-500' : 'bg-gray-400'
-                }`}></div>
+                {provider.verified && (
+                  <CheckCircle className="absolute -bottom-1 -right-1 w-7 h-7 text-success-600 bg-white rounded-full" />
+                )}
               </div>
 
-              {/* Info */}
+              {/* Provider Details */}
               <div className="flex-1">
-                <div className="flex flex-col md:flex-row md:items-start md:justify-between">
+                <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">{provider.name}</h1>
-                    <p className="text-base sm:text-lg text-gray-600 capitalize mb-2">{provider.category}</p>
-                    
+                    <h1 className="text-2xl font-bold text-text-900 mb-2 font-display">
+                      {provider.name}
+                    </h1>
                     <div className="flex items-center mb-2">
-                      <div className="flex items-center">
-                        <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-current" />
-                        <span className="ml-1 text-sm sm:text-base font-semibold text-gray-900">{provider.rating}</span>
-                      </div>
-                      <span className="ml-2 text-sm sm:text-base text-gray-600">({provider.reviewCount} reviews)</span>
-                    </div>
-
-                    <div className="flex items-center text-gray-600 mb-2 text-sm sm:text-base">
-                      <MapPin size={14} className="sm:w-4 sm:h-4 mr-2" />
-                      <span>{provider.location.address}</span>
-                    </div>
-
-                    <div className="flex items-center text-gray-600 text-sm sm:text-base">
-                      <Clock size={14} className="sm:w-4 sm:h-4 mr-2" />
-                      <span className={provider.isAvailable ? 'text-green-600' : 'text-gray-600'}>
-                        {provider.isAvailable ? 'Available now' : `Next: ${provider.nextAvailable}`}
+                      {renderStars(provider.rating)}
+                      <span className="ml-2 text-lg font-medium text-text-900">
+                        {provider.rating}
+                      </span>
+                      <span className="ml-2 text-neutral-600">
+                        ({provider.reviewCount} reviews)
                       </span>
                     </div>
                   </div>
 
-                  <div className="text-right mt-3 sm:mt-4 md:mt-0">
-                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">{provider.priceRange}</div>
-                    <div className="text-xs sm:text-sm text-gray-600">{provider.location.distance}</div>
+                  {/* Availability Badge */}
+                  <span className={`px-3 py-1 text-sm font-medium rounded-full border ${
+                    provider.availability === 'available'
+                      ? 'bg-success-50 text-success-700 border-success-200'
+                      : 'bg-error-50 text-error-700 border-error-200'
+                  }`}>
+                    {provider.availability === 'available' ? 'Available' : 'Busy'}
+                  </span>
+                </div>
+
+                {/* Location & Distance */}
+                <div className="flex items-center text-neutral-600 mb-3">
+                  <MapPin className="w-5 h-5 mr-2" />
+                  <span>{provider.location.name}</span>
+                  {distance && (
+                    <span className="ml-2 text-accent-600 font-medium">
+                      • {formatDistance(distance)}
+                    </span>
+                  )}
+                </div>
+
+                {/* Experience & Jobs */}
+                <div className="flex items-center space-x-6 text-sm text-neutral-600 mb-4">
+                  <div className="flex items-center">
+                    <Clock className="w-4 h-4 mr-1" />
+                    <span>{provider.experience} experience</span>
                   </div>
+                  <div className="flex items-center">
+                    <Award className="w-4 h-4 mr-1" />
+                    <span>{provider.completedJobs} jobs completed</span>
+                  </div>
+                </div>
+
+                {/* Price Range */}
+                <div className="mb-4">
+                  <p className="text-lg font-semibold text-text-900">
+                    Price Range: <span className="text-accent-600">{provider.priceRange}</span>
+                  </p>
+                  <p className="text-sm text-neutral-500">
+                    Final price depends on the specific issue. Chat to discuss details.
+                  </p>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => setShowRequestForm(true)}
+                    disabled={!isCustomer}
+                    className="flex-1 bg-accent-500 text-white py-3 px-6 rounded-lg font-medium hover:bg-accent-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Request Service
+                  </button>
+                  <a
+                    href={`tel:${provider.phone}`}
+                    className="px-6 py-3 border border-neutral-300 text-neutral-700 rounded-lg hover:bg-neutral-50 transition-colors"
+                  >
+                    <Phone className="w-5 h-5" />
+                  </a>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="bg-white border-b px-4 py-3 sm:py-4">
-          <div className="max-w-6xl mx-auto flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-            <Link
-              href={`/messages?provider=${provider.id}`}
-              className="flex-1 btn-primary flex items-center justify-center py-2.5 sm:py-3 text-sm sm:text-base"
-            >
-              <MessageCircle size={16} className="sm:w-4 sm:h-4 mr-2" />
-              Message
-            </Link>
-            <button className="btn-outline flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base">
-              <Phone size={16} className="sm:w-4 sm:h-4 mr-2" />
-              Call
-            </button>
-            <button className="btn-outline flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base">
-              <Calendar size={16} className="sm:w-4 sm:h-4 mr-2" />
-              Book
-            </button>
+          {/* Description */}
+          <div className="bg-white rounded-xl shadow-card border border-neutral-100 p-6 mb-6">
+            <h2 className="text-lg font-semibold text-text-900 mb-3 font-display">About</h2>
+            <p className="text-neutral-700 leading-relaxed">{provider.description}</p>
           </div>
-        </div>
 
-        {/* Tabs */}
-        <div className="bg-white border-b">
-          <div className="max-w-6xl mx-auto px-4">
-            <div className="flex space-x-4 sm:space-x-8 overflow-x-auto scrollbar-hide">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`py-3 sm:py-4 px-2 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap touch-target ${
-                    activeTab === tab.id
-                      ? 'border-primary-500 text-primary-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
-                  }`}
+          {/* Services */}
+          <div className="bg-white rounded-xl shadow-card border border-neutral-100 p-6 mb-6">
+            <h2 className="text-lg font-semibold text-text-900 mb-4 font-display">Services Offered</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {provider.services.map((service, index) => (
+                <div
+                  key={index}
+                  className="flex items-center p-3 bg-neutral-50 rounded-lg border border-neutral-200"
                 >
-                  {tab.name}
-                </button>
+                  <CheckCircle className="w-4 h-4 text-success-600 mr-3" />
+                  <span className="text-neutral-900 font-medium">{service}</span>
+                </div>
               ))}
             </div>
           </div>
-        </div>
 
-        {/* Tab Content */}
-        <div className="max-w-6xl mx-auto px-4 py-4 sm:py-6">
-          {activeTab === 'about' && (
-            <div>
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">About</h3>
-              <p className="text-sm sm:text-base text-gray-700 leading-relaxed">{provider.description}</p>
-            </div>
-          )}
-
-          {activeTab === 'services' && (
-            <div>
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Services Offered</h3>
-              <div className="grid gap-2 sm:gap-3">
-                {provider.services.map((service, index) => (
-                  <div key={index} className="flex items-center p-3 sm:p-4 bg-gray-50 rounded-lg">
-                    <CheckCircle size={18} className="sm:w-5 sm:h-5 text-green-500 mr-2 sm:mr-3" />
-                    <span className="font-medium text-gray-900 text-sm sm:text-base">{service}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'portfolio' && (
-            <div>
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Portfolio</h3>
-              {provider.portfolio && provider.portfolio.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
-                  {provider.portfolio.map((image, index) => (
-                    <div key={index} className="relative aspect-square">
-                      <Image
-                        src={image}
-                        alt={`Portfolio ${index + 1}`}
-                        fill
-                        className="object-cover rounded-lg"
-                      />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 sm:py-12">
-                  <Camera size={48} className="mx-auto text-gray-400 mb-4" />
-                  <h4 className="text-lg font-medium text-gray-900 mb-2">No portfolio yet</h4>
-                  <p className="text-gray-500 text-sm sm:text-base">
-                    This provider hasn't uploaded any portfolio images yet.
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {activeTab === 'reviews' && (
-            <div>
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Reviews</h3>
-              {providerReviews.length > 0 ? (
-                <div className="space-y-4 sm:space-y-6">
-                  {providerReviews.map((review) => (
-                    <div key={review.id} className="bg-white rounded-lg p-4 sm:p-6 border border-gray-100">
-                      <div className="flex items-start space-x-3 sm:space-x-4">
-                        <Image
-                          src={review.userAvatar}
-                          alt={review.userName}
-                          width={40}
-                          height={40}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{review.userName}</h4>
-                            <div className="flex items-center">
-                              <Star size={14} className="sm:w-4 sm:h-4 text-yellow-400 fill-current" />
-                              <span className="ml-1 text-sm sm:text-base font-medium">{review.rating}</span>
-                            </div>
-                          </div>
-                          <p className="text-gray-700 text-sm sm:text-base leading-relaxed">{review.comment}</p>
-                          <p className="text-gray-500 text-xs sm:text-sm mt-2">{review.date}</p>
-                        </div>
+          {/* Mock Reviews */}
+          <div className="bg-white rounded-xl shadow-card border border-neutral-100 p-6">
+            <h2 className="text-lg font-semibold text-text-900 mb-4 font-display">Recent Reviews</h2>
+            <div className="space-y-4">
+              {/* Mock review 1 */}
+              <div className="border-b border-neutral-200 pb-4">
+                <div className="flex items-start space-x-3">
+                  <img
+                    src="https://i.pravatar.cc/40?img=10"
+                    alt="Reviewer"
+                    className="w-10 h-10 rounded-full"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center mb-1">
+                      <span className="font-medium text-text-900 mr-2">Sarah K.</span>
+                      <div className="flex">
+                        {renderStars(5)}
                       </div>
                     </div>
-                  ))}
+                    <p className="text-neutral-700 text-sm">
+                      "Excellent service! {provider.name} was professional, punctual, and did a great job. Highly recommend!"
+                    </p>
+                    <span className="text-xs text-neutral-500">2 days ago</span>
+                  </div>
                 </div>
-              ) : (
-                <div className="text-center py-8 sm:py-12">
-                  <Star size={48} className="mx-auto text-gray-400 mb-4" />
-                  <h4 className="text-lg font-medium text-gray-900 mb-2">No reviews yet</h4>
-                  <p className="text-gray-500 text-sm sm:text-base">
-                    Be the first to review this provider.
-                  </p>
+              </div>
+
+              {/* Mock review 2 */}
+              <div className="border-b border-neutral-200 pb-4">
+                <div className="flex items-start space-x-3">
+                  <img
+                    src="https://i.pravatar.cc/40?img=11"
+                    alt="Reviewer"
+                    className="w-10 h-10 rounded-full"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center mb-1">
+                      <span className="font-medium text-text-900 mr-2">John M.</span>
+                      <div className="flex">
+                        {renderStars(4)}
+                      </div>
+                    </div>
+                    <p className="text-neutral-700 text-sm">
+                      "Good work and fair pricing. Communication was clear throughout the process."
+                    </p>
+                    <span className="text-xs text-neutral-500">1 week ago</span>
+                  </div>
                 </div>
-              )}
+              </div>
+
+              <Link
+                href="#"
+                className="text-accent-600 hover:text-accent-700 font-medium text-sm"
+              >
+                View all reviews →
+              </Link>
             </div>
-          )}
+          </div>
         </div>
+
+        {/* Request Service Modal */}
+        {showRequestForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <h3 className="text-xl font-semibold text-text-900 mb-4 font-display">
+                  Request Service from {provider.name}
+                </h3>
+
+                <form onSubmit={handleSendRequest}>
+                  {/* Service Selection */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-text-900 mb-2">
+                      Select Service *
+                    </label>
+                    <select
+                      value={selectedService}
+                      onChange={(e) => setSelectedService(e.target.value)}
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+                      required
+                    >
+                      <option value="">Choose a service...</option>
+                      {provider.services.map((service, index) => (
+                        <option key={index} value={service}>
+                          {service}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Message */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-text-900 mb-2">
+                      Describe your issue *
+                    </label>
+                    <textarea
+                      value={requestMessage}
+                      onChange={(e) => setRequestMessage(e.target.value)}
+                      placeholder="Please describe what help you need. Be specific about the problem to get a better estimate."
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 h-24 resize-none"
+                      required
+                    />
+                  </div>
+
+                  <div className="flex space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowRequestForm(false)}
+                      className="flex-1 px-4 py-2 border border-neutral-300 text-neutral-700 rounded-lg hover:bg-neutral-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading || !requestMessage.trim() || !selectedService}
+                      className="flex-1 bg-accent-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-accent-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    >
+                      {loading ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4 mr-2" />
+                          Send Request
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

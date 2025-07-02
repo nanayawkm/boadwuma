@@ -1,112 +1,154 @@
+import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { Star, MapPin, Clock, MessageCircle } from 'lucide-react';
+import { Star, MapPin, Phone, CheckCircle, Clock } from 'lucide-react';
+import { formatDistance } from '../data/mockData';
 
-export default function ServiceProviderCard({ provider }) {
-  const { 
-    id, 
-    name, 
-    services, 
-    rating, 
-    reviewCount, 
-    priceRange, 
-    location, 
-    avatar, 
-    isAvailable, 
-    nextAvailable 
-  } = provider;
+export default function ServiceProviderCard({ provider, distance, showDistance = true }) {
+  const renderStars = (rating) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        className={`w-4 h-4 ${
+          i < Math.floor(rating)
+            ? 'text-yellow-400 fill-current'
+            : 'text-neutral-300'
+        }`}
+      />
+    ));
+  };
+
+  const getAvailabilityColor = (availability) => {
+    switch (availability) {
+      case 'available':
+        return 'text-success-600 bg-success-50 border-success-200';
+      case 'busy':
+        return 'text-error-600 bg-error-50 border-error-200';
+      default:
+        return 'text-neutral-600 bg-neutral-50 border-neutral-200';
+    }
+  };
+
+  const getAvailabilityText = (availability) => {
+    switch (availability) {
+      case 'available':
+        return 'Available';
+      case 'busy':
+        return 'Busy';
+      default:
+        return 'Unknown';
+    }
+  };
 
   return (
-    <div className="card hover:shadow-lg transition-shadow duration-200">
-      <div className="flex items-start space-x-3 sm:space-x-4">
+    <div className="bg-white rounded-xl shadow-card hover:shadow-card-hover transition-shadow duration-200 p-6 border border-neutral-100">
+      {/* Provider Header */}
+      <div className="flex items-start space-x-4 mb-4">
         {/* Avatar */}
         <div className="relative">
-          <Image
-            src={avatar}
-            alt={name}
-            width={56}
-            height={56}
-            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover"
+          <img
+            src={provider.avatar}
+            alt={provider.name}
+            className="w-16 h-16 rounded-full object-cover"
+            onError={(e) => {
+              e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(provider.name)}&background=2B4C7E&color=fff`;
+            }}
           />
-          <div className={`absolute -bottom-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-white ${
-            isAvailable ? 'bg-green-500' : 'bg-gray-400'
-          }`}></div>
+          {provider.verified && (
+            <CheckCircle className="absolute -bottom-1 -right-1 w-5 h-5 text-success-600 bg-white rounded-full" />
+          )}
         </div>
 
-        {/* Content */}
-        <div className="flex-1 min-w-0">
+        {/* Provider Info */}
+        <div className="flex-1">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
-                {name}
+              <h3 className="text-lg font-semibold text-text-900 mb-1">
+                {provider.name}
               </h3>
-              <div className="flex items-center mt-1">
+              <div className="flex items-center space-x-2 mb-2">
                 <div className="flex items-center">
-                  <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-400 fill-current" />
-                  <span className="ml-1 text-xs sm:text-sm font-medium text-gray-900">
-                    {rating}
+                  {renderStars(provider.rating)}
+                  <span className="ml-2 text-sm text-neutral-600">
+                    {provider.rating} ({provider.reviewCount} reviews)
                   </span>
                 </div>
-                <span className="ml-2 text-xs sm:text-sm text-gray-500">
-                  ({reviewCount} reviews)
-                </span>
               </div>
             </div>
-            <div className="text-right text-xs sm:text-sm">
-              <div className="font-semibold text-gray-900">{priceRange}</div>
-              <div className="text-gray-500">{location.distance}</div>
-            </div>
-          </div>
 
-          {/* Services */}
-          <div className="mt-2 sm:mt-3">
-            <div className="flex flex-wrap gap-1">
-              {services.slice(0, 3).map((service, index) => (
-                <span
-                  key={index}
-                  className="inline-block px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs bg-gray-100 text-gray-700 rounded-full"
-                >
-                  {service}
-                </span>
-              ))}
-              {services.length > 3 && (
-                <span className="inline-block px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
-                  +{services.length - 3} more
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Location */}
-          <div className="flex items-center mt-2 text-xs sm:text-sm text-gray-600">
-            <MapPin size={12} className="sm:w-3.5 sm:h-3.5 mr-1" />
-            <span className="truncate">{location.address}</span>
-          </div>
-
-          {/* Availability */}
-          <div className="flex items-center mt-2 text-xs sm:text-sm">
-            <Clock size={12} className="sm:w-3.5 sm:h-3.5 mr-1" />
-            <span className={isAvailable ? 'text-green-600' : 'text-gray-600'}>
-              {isAvailable ? 'Available now' : `Next: ${nextAvailable}`}
+            {/* Availability Badge */}
+            <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getAvailabilityColor(provider.availability)}`}>
+              {getAvailabilityText(provider.availability)}
             </span>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex space-x-2 mt-3 sm:mt-4">
-            <Link
-              href={`/provider/${id}`}
-              className="flex-1 btn-primary text-center text-xs sm:text-sm py-2"
-            >
-              View Profile
-            </Link>
-            <Link
-              href={`/messages?provider=${id}`}
-              className="btn-outline flex items-center justify-center px-2 sm:px-3 py-2"
-            >
-              <MessageCircle size={14} className="sm:w-4 sm:h-4" />
-            </Link>
+          {/* Location & Distance */}
+          <div className="flex items-center text-sm text-neutral-600 mb-2">
+            <MapPin className="w-4 h-4 mr-1" />
+            <span>{provider.location.name}</span>
+            {showDistance && distance && (
+              <span className="ml-2 text-accent-600 font-medium">
+                • {formatDistance(distance)}
+              </span>
+            )}
+          </div>
+
+          {/* Experience */}
+          <div className="flex items-center text-sm text-neutral-600 mb-3">
+            <Clock className="w-4 h-4 mr-1" />
+            <span>{provider.experience} experience • {provider.completedJobs} jobs completed</span>
           </div>
         </div>
+      </div>
+
+      {/* Services */}
+      <div className="mb-4">
+        <p className="text-sm text-neutral-600 mb-2">Services:</p>
+        <div className="flex flex-wrap gap-2">
+          {provider.services.slice(0, 3).map((service, index) => (
+            <span
+              key={index}
+              className="px-2 py-1 text-xs bg-neutral-100 text-neutral-700 rounded-md"
+            >
+              {service}
+            </span>
+          ))}
+          {provider.services.length > 3 && (
+            <span className="px-2 py-1 text-xs bg-neutral-100 text-neutral-700 rounded-md">
+              +{provider.services.length - 3} more
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Price Range */}
+      <div className="mb-4">
+        <p className="text-sm font-medium text-text-900">
+          Price Range: <span className="text-accent-600">{provider.priceRange}</span>
+        </p>
+        <p className="text-xs text-neutral-500 mt-1">
+          Final price depends on issue. Please chat to confirm.
+        </p>
+      </div>
+
+      {/* Description */}
+      <p className="text-sm text-neutral-600 mb-6">
+        {provider.description}
+      </p>
+
+      {/* Action Buttons */}
+      <div className="flex space-x-3">
+        <Link
+          href={`/provider/${provider.id}`}
+          className="flex-1 bg-accent-500 text-white text-center py-3 px-4 rounded-lg font-medium hover:bg-accent-600 transition-colors duration-200"
+        >
+          Request Service
+        </Link>
+        <a
+          href={`tel:${provider.phone}`}
+          className="px-4 py-3 border border-neutral-300 text-neutral-700 rounded-lg hover:bg-neutral-50 transition-colors duration-200"
+        >
+          <Phone className="w-5 h-5" />
+        </a>
       </div>
     </div>
   );

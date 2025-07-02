@@ -1,13 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   html {
-    font-family: system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  .font-heading {
+    font-family: 'DM Serif Display', serif;
+  }
+  
+  .font-body {
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .font-brand {
+    font-family: 'Manrope', sans-serif;
   }
   
   body {
+    @apply bg-background-50 text-text-900;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -29,23 +44,31 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-primary-500 hover:bg-primary-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply bg-primary-500 hover:bg-primary-600 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md;
   }
   
   .btn-secondary {
-    @apply bg-secondary-500 hover:bg-secondary-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply bg-accent-500 hover:bg-accent-600 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md;
   }
   
   .btn-outline {
-    @apply border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md;
+  }
+  
+  .btn-ghost {
+    @apply text-neutral-600 hover:text-text-900 hover:bg-neutral-100 font-medium py-2.5 px-4 rounded-lg transition-all duration-200;
   }
   
   .card {
-    @apply bg-white rounded-lg shadow-md p-6 border border-gray-100;
+    @apply bg-white rounded-xl shadow-sm border border-neutral-200 text-text-900 p-4 sm:p-6;
+  }
+  
+  .card-hover {
+    @apply bg-white rounded-xl shadow-sm border border-neutral-200 text-text-900 p-4 sm:p-6 hover:shadow-md hover:border-primary-200 transition-all duration-200;
   }
   
   .input-field {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    @apply w-full px-3 py-2.5 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all duration-200 bg-white;
   }
   
   .scrollbar-hide {
@@ -73,18 +96,18 @@
   }
   
   .message-bubble-sent {
-    @apply bg-green-500 text-white;
+    @apply bg-accent-500 text-white;
     border-bottom-right-radius: 4px;
   }
   
   .message-bubble-received {
-    @apply bg-white text-gray-900;
+    @apply bg-white text-text-900 border border-neutral-200;
     border-bottom-left-radius: 4px;
   }
   
   /* Custom typing animation for dots */
   .typing-dot {
-    @apply w-2 h-2 bg-gray-400 rounded-full;
+    @apply w-2 h-2 bg-neutral-400 rounded-full;
     animation: typing-bounce 1.4s infinite ease-in-out;
   }
   
@@ -98,20 +121,20 @@
   
   /* Floating button with pulse */
   .floating-btn {
-    @apply animate-pulse-green;
+    @apply animate-pulse-location;
   }
   
   /* Quick reply buttons */
   .quick-reply {
-    @apply px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full hover:bg-gray-200 transition-all duration-200 transform hover:scale-105;
+    @apply px-3 py-1.5 bg-neutral-100 text-neutral-700 text-sm rounded-full hover:bg-neutral-200 transition-all duration-200 transform hover:scale-105;
   }
   
   /* Chat background pattern */
   .chat-background {
-    background-color: #e5ddd5;
+    background-color: #F4F6FA;
     background-image: 
-      radial-gradient(circle at 25px 25px, rgba(255,255,255,0.15) 2%, transparent 50%),
-      radial-gradient(circle at 75px 75px, rgba(255,255,255,0.1) 2%, transparent 50%);
+      radial-gradient(circle at 25px 25px, rgba(37, 99, 235, 0.05) 2%, transparent 50%),
+      radial-gradient(circle at 75px 75px, rgba(37, 99, 235, 0.03) 2%, transparent 50%);
     background-size: 100px 100px;
   }
   
@@ -138,15 +161,15 @@
   }
   
   .status-seen {
-    @apply text-blue-500;
+    @apply text-accent-500;
   }
   
   .status-delivered {
-    @apply text-gray-400;
+    @apply text-neutral-400;
   }
   
   .status-sent {
-    @apply text-gray-400;
+    @apply text-neutral-400;
   }
   
   /* Responsive text utilities */
@@ -211,6 +234,28 @@
   
   .m-responsive-lg {
     @apply m-4 sm:m-6;
+  }
+  
+  /* Modern gradient backgrounds */
+  .gradient-primary {
+    @apply bg-gradient-to-r from-primary-500 to-accent-500;
+  }
+  
+  .gradient-secondary {
+    @apply bg-gradient-to-r from-neutral-600 to-neutral-700;
+  }
+  
+  .gradient-success {
+    @apply bg-gradient-to-r from-success-500 to-success-600;
+  }
+  
+  /* Modern shadows */
+  .shadow-modern {
+    @apply shadow-lg shadow-text-900/10;
+  }
+  
+  .shadow-modern-lg {
+    @apply shadow-xl shadow-text-900/15;
   }
 }
 

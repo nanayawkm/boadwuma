@@ -1,194 +1,406 @@
-export const serviceCategories = [
-  { id: 'appliance-repair', name: 'Fridge Repair', icon: '❄️', providerCount: 23 },
-  { id: 'plumbing', name: 'Plumbing', icon: '🔧', providerCount: 45 },
-  { id: 'barber', name: 'Barber', icon: '💇‍♂️', providerCount: 32 },
-  { id: 'electrical', name: 'Electrician', icon: '⚡', providerCount: 28 },
-  { id: 'tailor', name: 'Tailor', icon: '🪡', providerCount: 19 },
-  { id: 'hairdressing', name: 'Hairdressing', icon: '✂️', providerCount: 36 },
-  { id: 'design', name: 'Interior Design', icon: '🎨', providerCount: 15 },
-  { id: 'cleaning', name: 'Cleaning', icon: '🧽', providerCount: 41 },
-  { id: 'gardening', name: 'Gardening', icon: '🌱', providerCount: 22 },
-  { id: 'carpentry', name: 'Carpentry', icon: '🔨', providerCount: 18 },
-  { id: 'painting', name: 'House Painting', icon: '🎨', providerCount: 25 },
-  { id: 'ac-repair', name: 'AC Repair', icon: '❄️', providerCount: 12 }
+// Mock data for Boadwuma - Ghanaian Service Platform
+
+// Major Ghanaian locations with coordinates
+export const GHANA_LOCATIONS = {
+  ACCRA: { lat: 5.6037, lng: -0.1870, name: 'Accra' },
+  KUMASI: { lat: 6.6885, lng: -1.6244, name: 'Kumasi' },
+  TAMALE: { lat: 9.4034, lng: -0.8424, name: 'Tamale' },
+  TEMA: { lat: 5.6698, lng: 0.0166, name: 'Tema' },
+  CAPE_COAST: { lat: 5.1053, lng: -1.2466, name: 'Cape Coast' },
+  SEKONDI_TAKORADI: { lat: 4.9344, lng: -1.7713, name: 'Sekondi-Takoradi' },
+  EAST_LEGON: { lat: 5.6499, lng: -0.1436, name: 'East Legon, Accra' },
+  OSU: { lat: 5.5515, lng: -0.1736, name: 'Osu, Accra' },
+  ADENTA: { lat: 5.7094, lng: -0.1724, name: 'Adenta, Accra' },
+  LAPAZ: { lat: 5.6106, lng: -0.2528, name: 'Lapaz, Accra' },
+};
+
+// Service categories
+export const SERVICE_CATEGORIES = [
+  {
+    id: 'appliance_repair',
+    name: 'Appliance Repair',
+    icon: '🔧',
+    services: ['Fridge Repair', 'Washing Machine', 'Microwave', 'Air Conditioner', 'TV Repair']
+  },
+  {
+    id: 'plumbing',
+    name: 'Plumbing',
+    icon: '🚿',
+    services: ['Pipe Repair', 'Toilet Fix', 'Water Heater', 'Drain Cleaning', 'Faucet Installation']
+  },
+  {
+    id: 'electrical',
+    name: 'Electrical',
+    icon: '⚡',
+    services: ['Wiring', 'Fan Installation', 'Power Issues', 'Socket Repair', 'Circuit Breaker']
+  },
+  {
+    id: 'cleaning',
+    name: 'Cleaning',
+    icon: '🧹',
+    services: ['House Cleaning', 'Office Cleaning', 'Deep Cleaning', 'Carpet Cleaning', 'Window Cleaning']
+  },
+  {
+    id: 'handyman',
+    name: 'Handyman',
+    icon: '🔨',
+    services: ['Furniture Assembly', 'Wall Mounting', 'Door Repair', 'Painting', 'General Repairs']
+  },
+  {
+    id: 'automotive',
+    name: 'Auto Repair',
+    icon: '🚗',
+    services: ['Engine Repair', 'Tire Service', 'Oil Change', 'Battery', 'AC Repair']
+  }
 ];
 
-export const serviceProviders = [
+// Mock service providers
+export const MOCK_PROVIDERS = [
   {
-    id: '1',
-    name: 'John Smith',
-    category: 'plumbing',
-    services: ['Emergency Repairs', 'Pipe Installation', 'Bathroom Fitting'],
+    id: 'provider-1',
+    name: 'Kwame Asante',
+    avatar: 'https://i.pravatar.cc/150?img=1',
+    phone: '+233 24 123 4567',
     rating: 4.8,
     reviewCount: 127,
-    priceRange: '$50-100/hour',
-    location: {
-      address: '123 Main St, Downtown',
-      lat: 40.7128,
-      lng: -74.0060,
-      distance: '0.5 miles'
-    },
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-    isAvailable: true,
-    nextAvailable: 'Today 2:00 PM',
-    description: 'Licensed plumber with 10+ years experience in residential and commercial plumbing.',
-    portfolio: [
-      'https://images.unsplash.com/photo-1581244277943-fe4a9c777189?w=300&h=200&fit=crop',
-      'https://images.unsplash.com/photo-1600585152220-90363fe7e115?w=300&h=200&fit=crop'
-    ]
+    category: 'appliance_repair',
+    services: ['Fridge Repair', 'Washing Machine', 'Air Conditioner'],
+    priceRange: '₵80 - ₵300',
+    location: GHANA_LOCATIONS.EAST_LEGON,
+    experience: '5 years',
+    description: 'Expert in all home appliances. Quick and reliable service.',
+    availability: 'available',
+    verified: true,
+    completedJobs: 240
   },
   {
-    id: '2',
-    name: 'Sarah Johnson',
-    category: 'hairdressing',
-    services: ['Haircuts', 'Coloring', 'Styling', 'Bridal Hair'],
+    id: 'provider-2',
+    name: 'Ama Darko',
+    avatar: 'https://i.pravatar.cc/150?img=2',
+    phone: '+233 20 987 6543',
     rating: 4.9,
-    reviewCount: 203,
-    priceRange: '$30-80/service',
-    location: {
-      address: '456 Oak Ave, Midtown',
-      lat: 40.7589,
-      lng: -73.9851,
-      distance: '1.2 miles'
-    },
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b332c63d?w=150&h=150&fit=crop&crop=face',
-    isAvailable: false,
-    nextAvailable: 'Tomorrow 10:00 AM',
-    description: 'Professional hairstylist specializing in modern cuts and color techniques.',
-    portfolio: [
-      'https://images.unsplash.com/photo-1560975286-5c870889b94d?w=300&h=200&fit=crop',
-      'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=300&h=200&fit=crop'
-    ]
-  },
-  {
-    id: '3',
-    name: 'Mike Wilson',
-    category: 'electrical',
-    services: ['Wiring', 'Lighting Installation', 'Panel Upgrades'],
-    rating: 4.7,
     reviewCount: 89,
-    priceRange: '$75-150/hour',
-    location: {
-      address: '789 Pine St, Uptown',
-      lat: 40.7831,
-      lng: -73.9712,
-      distance: '2.1 miles'
+    category: 'cleaning',
+    services: ['House Cleaning', 'Office Cleaning', 'Deep Cleaning'],
+    priceRange: '₵150 - ₵500',
+    location: GHANA_LOCATIONS.OSU,
+    experience: '3 years',
+    description: 'Professional cleaning services for homes and offices.',
+    availability: 'available',
+    verified: true,
+    completedJobs: 156
+  },
+  {
+    id: 'provider-3',
+    name: 'Kofi Mensah',
+    avatar: 'https://i.pravatar.cc/150?img=3',
+    phone: '+233 26 555 7777',
+    rating: 4.7,
+    reviewCount: 203,
+    category: 'plumbing',
+    services: ['Pipe Repair', 'Toilet Fix', 'Water Heater'],
+    priceRange: '₵120 - ₵450',
+    location: GHANA_LOCATIONS.ADENTA,
+    experience: '7 years',
+    description: 'Licensed plumber with years of experience.',
+    availability: 'busy',
+    verified: true,
+    completedJobs: 312
+  },
+  {
+    id: 'provider-4',
+    name: 'Akosua Osei',
+    avatar: 'https://i.pravatar.cc/150?img=4',
+    phone: '+233 23 444 8888',
+    rating: 4.6,
+    reviewCount: 156,
+    category: 'electrical',
+    services: ['Wiring', 'Fan Installation', 'Power Issues'],
+    priceRange: '₵100 - ₵400',
+    location: GHANA_LOCATIONS.LAPAZ,
+    experience: '4 years',
+    description: 'Certified electrician for residential and commercial work.',
+    availability: 'available',
+    verified: true,
+    completedJobs: 189
+  },
+  {
+    id: 'provider-5',
+    name: 'Yaw Boateng',
+    avatar: 'https://i.pravatar.cc/150?img=5',
+    phone: '+233 24 777 9999',
+    rating: 4.9,
+    reviewCount: 78,
+    category: 'handyman',
+    services: ['Furniture Assembly', 'Wall Mounting', 'Door Repair'],
+    priceRange: '₵60 - ₵250',
+    location: GHANA_LOCATIONS.TEMA,
+    experience: '6 years',
+    description: 'Skilled handyman for all your home repair needs.',
+    availability: 'available',
+    verified: true,
+    completedJobs: 134
+  },
+  {
+    id: 'provider-6',
+    name: 'Efua Asiedu',
+    avatar: 'https://i.pravatar.cc/150?img=6',
+    phone: '+233 20 333 2222',
+    rating: 4.8,
+    reviewCount: 91,
+    category: 'automotive',
+    services: ['Engine Repair', 'Tire Service', 'Oil Change'],
+    priceRange: '₵200 - ₵800',
+    location: GHANA_LOCATIONS.KUMASI,
+    experience: '8 years',
+    description: 'Auto mechanic with expertise in all vehicle types.',
+    availability: 'available',
+    verified: true,
+    completedJobs: 267
+  }
+];
+
+// Mock users
+export const MOCK_USERS = [
+  {
+    id: 'user-1',
+    name: 'John Doe',
+    avatar: 'https://i.pravatar.cc/150?img=7',
+    phone: '+233 24 111 2222',
+    location: GHANA_LOCATIONS.ACCRA,
+    verified: true
+  },
+  {
+    id: 'user-2',
+    name: 'Jane Smith',
+    avatar: 'https://i.pravatar.cc/150?img=8',
+    phone: '+233 20 333 4444',
+    location: GHANA_LOCATIONS.EAST_LEGON,
+    verified: true
+  }
+];
+
+// Mock service requests
+export const MOCK_REQUESTS = [
+  {
+    id: 'req-1',
+    userId: 'user-1',
+    providerId: 'provider-1',
+    service: 'Fridge Repair',
+    message: 'My fridge is not cooling properly. It was working fine yesterday but now the temperature is not cold enough.',
+    status: 'pending', // pending, accepted, en_route, completed, rated
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+    location: GHANA_LOCATIONS.ACCRA,
+    estimatedPrice: null,
+    actualPrice: null,
+    paymentMethod: null,
+    rating: null,
+    review: null
+  },
+  {
+    id: 'req-2',
+    userId: 'user-2',
+    providerId: 'provider-2',
+    service: 'House Cleaning',
+    message: 'Need deep cleaning for 3-bedroom house. Kitchen and bathrooms need special attention.',
+    status: 'accepted',
+    timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
+    location: GHANA_LOCATIONS.EAST_LEGON,
+    estimatedPrice: '₵300',
+    actualPrice: null,
+    paymentMethod: null,
+    rating: null,
+    review: null,
+    acceptedAt: new Date(Date.now() - 30 * 60 * 1000) // 30 minutes ago
+  },
+  {
+    id: 'req-3',
+    userId: 'user-1',
+    providerId: 'provider-3',
+    service: 'AC Repair',
+    message: 'AC unit not cooling properly. Need urgent repair.',
+    status: 'en_route',
+    timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
+    location: GHANA_LOCATIONS.TEMA,
+    estimatedPrice: '₵250',
+    actualPrice: null,
+    paymentMethod: null,
+    rating: null,
+    review: null,
+    acceptedAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+    enRouteAt: new Date(Date.now() - 15 * 60 * 1000), // 15 minutes ago
+    eta: 18,
+    providerLocation: {
+      lat: 5.6698 + (Math.random() - 0.5) * 0.01,
+      lng: 0.0166 + (Math.random() - 0.5) * 0.01
+    }
+  },
+  {
+    id: 'req-4',
+    userId: 'user-2',
+    providerId: 'provider-4',
+    service: 'Electrical Repair',
+    message: 'Power outlet not working in living room. Need electrician.',
+    status: 'completed',
+    timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago
+    location: GHANA_LOCATIONS.OSU,
+    estimatedPrice: '₵150',
+    actualPrice: '₵150',
+    paymentMethod: 'cash',
+    rating: null,
+    review: null,
+    acceptedAt: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
+    enRouteAt: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
+    completedAt: new Date(Date.now() - 2 * 60 * 60 * 1000) // 2 hours ago
+  }
+];
+
+// Mock chat messages
+export const MOCK_CHAT_MESSAGES = {
+  'req-1': [
+    {
+      id: 'msg-1',
+      senderId: 'user-1',
+      senderType: 'user',
+      message: 'My fridge is not cooling properly. It was working fine yesterday but now the temperature is not cold enough.',
+      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
+      type: 'text'
     },
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-    isAvailable: true,
-    nextAvailable: 'Today 4:00 PM',
-    description: 'Certified electrician with expertise in residential and commercial electrical work.',
-    portfolio: [
-      'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=300&h=200&fit=crop',
-      'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=300&h=200&fit=crop'
-    ]
-  },
-  {
-    id: '4',
-    name: 'Emma Davis',
-    category: 'design',
-    services: ['Interior Design', 'Space Planning', 'Color Consultation'],
-    rating: 5.0,
-    reviewCount: 67,
-    priceRange: '$100-200/hour',
-    location: {
-      address: '321 Elm St, Arts District',
-      lat: 40.7282,
-      lng: -74.0776,
-      distance: '1.8 miles'
+    {
+      id: 'msg-2',
+      senderId: 'provider-1',
+      senderType: 'provider',
+      message: 'Hello! I can help you with that. What brand is your fridge and how old is it?',
+      timestamp: new Date(Date.now() - 1.5 * 60 * 60 * 1000),
+      type: 'text'
     },
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-    isAvailable: true,
-    nextAvailable: 'Today 1:00 PM',
-    description: 'Award-winning interior designer with a passion for creating beautiful, functional spaces.',
-    portfolio: [
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=200&fit=crop',
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300&h=200&fit=crop'
-    ]
+    {
+      id: 'msg-3',
+      senderId: 'user-1',
+      senderType: 'user',
+      message: 'It\'s a Samsung, about 3 years old. The freezer section is working but the main compartment is warm.',
+      timestamp: new Date(Date.now() - 1.2 * 60 * 60 * 1000),
+      type: 'text'
+    },
+    {
+      id: 'msg-4',
+      senderId: 'provider-1',
+      senderType: 'provider',
+      message: 'Sounds like a thermostat or compressor issue. I can come check it today. My rate is ₵150-₵250 depending on the problem.',
+      timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000),
+      type: 'text'
+    }
+  ],
+  'req-2': [
+    {
+      id: 'msg-5',
+      senderId: 'user-2',
+      senderType: 'user',
+      message: 'Need deep cleaning for 3-bedroom house. Kitchen and bathrooms need special attention.',
+      timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
+      type: 'text'
+    },
+    {
+      id: 'msg-6',
+      senderId: 'provider-2',
+      senderType: 'provider',
+      message: 'I can help! For a 3-bedroom deep clean with kitchen and bathrooms, it\'s ₵300. I have availability today.',
+      timestamp: new Date(Date.now() - 3.5 * 60 * 60 * 1000),
+      type: 'text'
+    },
+    {
+      id: 'msg-7',
+      senderId: 'user-2',
+      senderType: 'user',
+      message: 'That sounds good. When can you come?',
+      timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000),
+      type: 'text'
+    },
+    {
+      id: 'msg-8',
+      senderId: 'provider-2',
+      senderType: 'provider',
+      message: 'I can start at 2 PM today. I\'ll bring all cleaning supplies.',
+      timestamp: new Date(Date.now() - 2.5 * 60 * 60 * 1000),
+      type: 'text'
+    },
+    {
+      id: 'msg-9',
+      senderId: 'provider-2',
+      senderType: 'provider',
+      message: 'On my way now! ETA 15 minutes.',
+      timestamp: new Date(Date.now() - 20 * 60 * 1000),
+      type: 'status'
+    }
+  ]
+};
+
+// Utility functions
+export function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Radius of the Earth in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const distance = R * c; // Distance in km
+  return Math.round(distance * 10) / 10; // Round to 1 decimal place
+}
+
+export function getProvidersNearLocation(userLocation, maxDistance = 50) {
+  return MOCK_PROVIDERS.map(provider => ({
+    ...provider,
+    distance: calculateDistance(
+      userLocation.lat, 
+      userLocation.lng, 
+      provider.location.lat, 
+      provider.location.lng
+    )
+  }))
+  .filter(provider => provider.distance <= maxDistance)
+  .sort((a, b) => a.distance - b.distance);
+}
+
+export function formatDistance(distance) {
+  if (distance < 1) {
+    return `${Math.round(distance * 1000)}m away`;
   }
+  return `${distance}km away`;
+}
+
+export function formatTimeAgo(timestamp) {
+  const now = new Date();
+  const diff = Math.floor((now - timestamp) / 1000);
+  
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+}
+
+// Payment methods available in Ghana
+export const PAYMENT_METHODS = [
+  { id: 'cash', name: 'Cash', icon: '💵' },
+  { id: 'momo', name: 'Mobile Money', icon: '📱' },
+  { id: 'bank', name: 'Bank Transfer', icon: '🏦' },
+  { id: 'not_paid', name: 'Not Paid Yet', icon: '⏳' }
 ];
 
-export const reviews = [
-  {
-    id: '1',
-    providerId: '1',
-    userName: 'Alice Brown',
-    userAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=50&h=50&fit=crop&crop=face',
-    rating: 5,
-    comment: 'Excellent work! Fixed my plumbing issue quickly and professionally.',
-    date: '2023-12-01'
-  },
-  {
-    id: '2',
-    providerId: '1',
-    userName: 'David Lee',
-    userAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=50&h=50&fit=crop&crop=face',
-    rating: 4,
-    comment: 'Very knowledgeable and fair pricing. Would recommend.',
-    date: '2023-11-28'
-  },
-  {
-    id: '3',
-    providerId: '2',
-    userName: 'Lisa Wilson',
-    userAvatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=50&h=50&fit=crop&crop=face',
-    rating: 5,
-    comment: 'Amazing haircut! Sarah really understood what I wanted.',
-    date: '2023-12-02'
-  }
-];
+// Legacy exports for compatibility
+export const serviceCategories = SERVICE_CATEGORIES;
+export const serviceProviders = MOCK_PROVIDERS;
 
-export const messages = [
-  {
-    id: '1',
-    conversationId: 'conv_1',
-    senderId: 'user_1',
-    receiverId: '1',
-    message: 'Hi, I need help with a leaky faucet. Are you available today?',
-    timestamp: '2023-12-03T10:30:00Z',
-    isRead: true
-  },
-  {
-    id: '2',
-    conversationId: 'conv_1',
-    senderId: '1',
-    receiverId: 'user_1',
-    message: 'Hello! Yes, I can help with that. I have availability this afternoon. Would 2 PM work for you?',
-    timestamp: '2023-12-03T10:35:00Z',
-    isRead: true
-  },
-  {
-    id: '3',
-    conversationId: 'conv_1',
-    senderId: 'user_1',
-    receiverId: '1',
-    message: 'Perfect! What would be the estimated cost?',
-    timestamp: '2023-12-03T10:40:00Z',
-    isRead: false
-  }
-];
 
-export const conversations = [
-  {
-    id: 'conv_1',
-    participants: ['user_1', '1'],
-    lastMessage: 'Perfect! What would be the estimated cost?',
-    lastMessageTime: '2023-12-03T10:40:00Z',
-    unreadCount: 1,
-    providerName: 'John Smith',
-    providerAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
-  }
-];
+export const getProvidersByCategory = (categoryId) => {
+  return MOCK_PROVIDERS.filter(provider => provider.category === categoryId);
+};
 
-export const currentUser = {
-  id: 'user_1',
-  name: 'Jane Doe',
-  email: 'jane@example.com',
-  avatar: 'https://images.unsplash.com/photo-1494790108755-2616b332c63d?w=150&h=150&fit=crop&crop=face',
-  location: {
-    lat: 40.7128,
-    lng: -74.0060,
-    address: 'New York, NY'
-  },
-  isProvider: false
+export const getProviderById = (providerId) => {
+  return MOCK_PROVIDERS.find(provider => provider.id === providerId);
+};
+
+export const getCategoryById = (categoryId) => {
+  return SERVICE_CATEGORIES.find(category => category.id === categoryId);
 };
