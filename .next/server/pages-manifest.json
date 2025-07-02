@@ -3,6 +3,5 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/": "pages/index.js",
-  "/provider/[id]": "pages/provider/[id].js",
-  "/messages": "pages/messages.js"
+  "/profile": "pages/profile.js"
 }

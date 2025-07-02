@@ -1,12 +1,16 @@
 export const serviceCategories = [
-  { id: 'plumbing', name: 'Plumbing', icon: '🔧' },
-  { id: 'electrical', name: 'Electrical', icon: '⚡' },
-  { id: 'hairdressing', name: 'Hairdressing', icon: '✂️' },
-  { id: 'design', name: 'Design', icon: '🎨' },
-  { id: 'cleaning', name: 'Cleaning', icon: '🧹' },
-  { id: 'gardening', name: 'Gardening', icon: '🌱' },
-  { id: 'carpentry', name: 'Carpentry', icon: '🔨' },
-  { id: 'painting', name: 'Painting', icon: '🎭' }
+  { id: 'appliance-repair', name: 'Fridge Repair', icon: '❄️', providerCount: 23 },
+  { id: 'plumbing', name: 'Plumbing', icon: '🔧', providerCount: 45 },
+  { id: 'barber', name: 'Barber', icon: '💇‍♂️', providerCount: 32 },
+  { id: 'electrical', name: 'Electrician', icon: '⚡', providerCount: 28 },
+  { id: 'tailor', name: 'Tailor', icon: '🪡', providerCount: 19 },
+  { id: 'hairdressing', name: 'Hairdressing', icon: '✂️', providerCount: 36 },
+  { id: 'design', name: 'Interior Design', icon: '🎨', providerCount: 15 },
+  { id: 'cleaning', name: 'Cleaning', icon: '🧽', providerCount: 41 },
+  { id: 'gardening', name: 'Gardening', icon: '🌱', providerCount: 22 },
+  { id: 'carpentry', name: 'Carpentry', icon: '🔨', providerCount: 18 },
+  { id: 'painting', name: 'House Painting', icon: '🎨', providerCount: 25 },
+  { id: 'ac-repair', name: 'AC Repair', icon: '❄️', providerCount: 12 }
 ];
 
 export const serviceProviders = [

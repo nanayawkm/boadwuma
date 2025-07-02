@@ -33,14 +33,14 @@ export default function Layout({ children }) {
       {/* Mobile Header */}
       <header className="lg:hidden bg-white shadow-sm border-b">
         <div className="flex items-center justify-between px-4 py-3">
-          <Link href="/" className="text-xl font-bold text-primary-600">
+          <Link href="/" className="text-lg sm:text-xl font-bold text-primary-600">
             Boadwuma
           </Link>
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 rounded-md text-gray-600 hover:text-gray-900"
+            className="p-2 rounded-md text-gray-600 hover:text-gray-900 touch-target"
           >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMobileMenuOpen ? <X size={20} className="sm:w-6 sm:h-6" /> : <Menu size={20} className="sm:w-6 sm:h-6" />}
           </button>
         </div>
 
@@ -54,7 +54,7 @@ export default function Layout({ children }) {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
+                    className={`flex items-center px-3 py-2.5 rounded-md text-sm font-medium touch-target ${
                       isActive(item.href)
                         ? 'bg-primary-100 text-primary-700'
                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -86,7 +86,7 @@ export default function Layout({ children }) {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
+                  className={`flex items-center px-3 py-2.5 rounded-md text-sm font-medium ${
                     isActive(item.href)
                       ? 'bg-primary-100 text-primary-700'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -109,22 +109,24 @@ export default function Layout({ children }) {
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t">
-        <div className="flex justify-around py-2">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-50">
+        <div className="flex justify-around py-1 sm:py-2 safe-area-inset-bottom">
           {currentNavigation.map((item) => {
             const Icon = item.icon;
             return (
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex flex-col items-center py-2 px-3 ${
+                className={`flex flex-col items-center py-2 sm:py-3 px-2 sm:px-4 min-w-0 flex-1 transition-colors duration-200 touch-target ${
                   isActive(item.href)
-                    ? 'text-primary-600'
-                    : 'text-gray-600'
+                    ? 'text-blue-600'
+                    : 'text-gray-600 active:text-blue-600'
                 }`}
               >
-                <Icon size={20} />
-                <span className="text-xs mt-1">{item.name}</span>
+                <Icon size={20} className="sm:w-5 sm:h-5" />
+                <span className={`text-xs mt-1 font-medium ${isActive(item.href) ? 'text-blue-600' : 'text-gray-600'}`}>
+                  {item.name}
+                </span>
               </Link>
             );
           })}
