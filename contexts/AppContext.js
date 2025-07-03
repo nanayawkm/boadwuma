@@ -210,6 +210,31 @@ export const AppProvider = ({ children }) => {
     return trackingData[requestId]?.isActive || false;
   };
 
+  // Get a specific request by ID
+  const getRequestById = (requestId) => {
+    return requests.find(req => req.id === requestId) || null;
+  };
+
+  // Get chat messages for a request
+  const getChatMessages = (requestId) => {
+    return chatMessages[requestId] || [];
+  };
+
+  // Get request status (alias for getRequestById)
+  const getRequestStatus = (requestId) => {
+    const request = getRequestById(requestId);
+    return request ? request.status : null;
+  };
+
+  // Update user profile
+  const updateUserProfile = (profileData) => {
+    setCurrentUser(prev => ({
+      ...prev,
+      ...profileData
+    }));
+    console.log('🔍 APPCONTEXT: User profile updated:', profileData);
+  };
+
   const value = {
     // Authentication state
     isAuthenticated,
@@ -222,12 +247,15 @@ export const AppProvider = ({ children }) => {
     userLocation,
     setUserLocation,
     switchRole,
+    updateUserProfile,
     
     // Requests
     requests,
     addRequest,
     updateRequestStatus,
     getUserRequests,
+    getRequestById,
+    getRequestStatus,
     
     // Tracking
     trackingData,
@@ -239,6 +267,7 @@ export const AppProvider = ({ children }) => {
     // Chat
     chatMessages,
     addChatMessage,
+    getChatMessages,
     
     // Utility
     isCustomer: userRole === 'customer',

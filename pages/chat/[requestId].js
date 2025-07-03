@@ -8,7 +8,9 @@ import {
   Phone, 
   CheckCircle2,
   Star,
-  MapPin
+  MapPin,
+  User,
+  Clock
 } from 'lucide-react';
 import { 
   MOCK_CHAT_MESSAGES, 
@@ -21,11 +23,20 @@ import {
 export default function ChatPage() {
   const router = useRouter();
   const { requestId } = router.query;
-  const { currentUser, userRole, chatMessages, addChatMessage, updateRequestStatus } = useApp();
+  const { 
+    currentUser, 
+    userRole, 
+    getRequestById, 
+    getChatMessages, 
+    addChatMessage,
+    getRequestStatus,
+    updateRequestStatus
+  } = useApp();
+  
   const [message, setMessage] = useState('');
   const [request, setRequest] = useState(null);
-  const [otherUser, setOtherUser] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [otherUser, setOtherUser] = useState(null);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
@@ -34,32 +45,28 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (requestId) {
-      // Find the request (mock data)
-      const mockRequest = {
-        id: requestId,
-        userId: 'user-1',
-        providerId: 'provider-1',
-        service: 'Fridge Repair',
-        status: 'in_progress',
-        timestamp: new Date(),
-        location: { name: 'Accra' }
-      };
-      setRequest(mockRequest);
-
-      // Get other user (provider or customer)
-      if (userRole === 'customer') {
-        const provider = MOCK_PROVIDERS.find(p => p.id === mockRequest.providerId);
-        setOtherUser(provider);
-      } else {
-        const customer = MOCK_USERS.find(u => u.id === mockRequest.userId);
-        setOtherUser(customer);
+      const requestData = getRequestById(requestId);
+      setRequest(requestData);
+      
+      if (requestData) {
+        // Determine the other user (customer or provider)
+        const isCustomer = userRole === 'customer';
+        const otherUserName = isCustomer ? requestData.provider : requestData.customer;
+        setOtherUser({
+          name: otherUserName,
+          phone: '+233 20 123 4567', // Mock phone number
+          avatar: otherUserName?.charAt(0) || 'U'
+        });
       }
-
-      // Get chat messages
-      const chatHistory = MOCK_CHAT_MESSAGES[requestId] || [];
-      setMessages(chatHistory);
     }
-  }, [requestId, userRole]);
+  }, [requestId, userRole, getRequestById]);
+
+  useEffect(() => {
+    if (requestId) {
+      const chatMessages = getChatMessages(requestId);
+      setMessages(chatMessages);
+    }
+  }, [requestId, getChatMessages]);
 
   useEffect(() => {
     scrollToBottom();
@@ -71,24 +78,69 @@ export default function ChatPage() {
 
   const handleSendMessage = (e) => {
     e.preventDefault();
-    if (!message.trim()) return;
-
-    const newMessage = {
-      senderId: currentUser.id,
-      senderType: userRole,
-      message: message.trim(),
-      timestamp: new Date(),
-      type: 'text'
-    };
-
-    setMessages(prev => [...prev, newMessage]);
-    setMessage('');
-    
-    // Add to context
-    addChatMessage(requestId, newMessage);
+    if (message.trim() && requestId) {
+      addChatMessage(requestId, {
+        senderId: currentUser?.id,
+        senderType: userRole,
+        message: message.trim(),
+        timestamp: new Date(),
+        type: 'text'
+      });
+      setMessage('');
+    }
   };
 
+  const formatTime = (timestamp) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
 
+  const formatDate = (timestamp) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    if (date.toDateString() === today.toDateString()) {
+      return 'Today';
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return 'Yesterday';
+    } else {
+      return date.toLocaleDateString();
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'pending':
+        return 'status-pending';
+      case 'accepted':
+        return 'status-accepted';
+      case 'en_route':
+        return 'status-en-route';
+      case 'completed':
+        return 'status-completed';
+      default:
+        return 'status-pending';
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch (status) {
+      case 'pending':
+        return 'Pending';
+      case 'accepted':
+        return 'Accepted';
+      case 'en_route':
+        return 'En Route';
+      case 'completed':
+        return 'Completed';
+      default:
+        return status;
+    }
+  };
 
   const handleCustomerConfirmation = (confirmed) => {
     if (confirmed) {
@@ -111,12 +163,15 @@ export default function ChatPage() {
     }
   };
 
-  if (!request || !otherUser) {
+  if (!request) {
     return (
-      <div className="min-h-screen bg-background-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-500 mx-auto mb-4"></div>
-          <p className="text-neutral-600">Loading chat...</p>
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <User size={24} className="text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Request not found</h3>
+          <p className="text-gray-600 text-sm">The chat you're looking for doesn't exist.</p>
         </div>
       </div>
     );
@@ -125,149 +180,116 @@ export default function ChatPage() {
   return (
     <>
       <Head>
-        <title>Chat with {otherUser.name} | Boadwuma</title>
+        <title>Chat with {otherUser?.name} | Boadwuma</title>
       </Head>
 
-      <div className="min-h-screen bg-background-50 flex flex-col">
-        {/* Chat Header */}
-        <div className="bg-white border-b border-neutral-200 sticky top-16 z-30">
-          <div className="max-w-4xl mx-auto px-4 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={() => router.back()}
-                  className="p-2 text-neutral-600 hover:text-neutral-900 transition-colors"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </button>
-                
-                <img
-                  src={otherUser.avatar}
-                  alt={otherUser.name}
-                  className="w-10 h-10 rounded-full object-cover"
-                  onError={(e) => {
-                    e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(otherUser.name)}&background=2B4C7E&color=fff`;
-                  }}
-                />
-                
-                <div>
-                  <h2 className="font-semibold text-text-900">{otherUser.name}</h2>
-                  <p className="text-sm text-neutral-600">{request.service}</p>
+      <div className="min-h-screen bg-background flex flex-col">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => router.back()}
+                className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <ArrowLeft size={20} />
+              </button>
+              <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                <span className="text-primary-600 font-semibold text-lg">
+                  {otherUser?.avatar || 'U'}
+                </span>
+              </div>
+              <div>
+                <h2 className="font-semibold text-gray-900">{otherUser?.name || 'User'}</h2>
+                <div className="flex items-center space-x-2">
+                  <span className={`status-badge ${getStatusColor(request.status)}`}>
+                    {getStatusText(request.status)}
+                  </span>
+                  <span className="text-sm text-gray-500">• {request.service}</span>
                 </div>
               </div>
-
-              <div className="flex items-center space-x-2">
-                <a
-                  href={`tel:${otherUser.phone}`}
-                  className="p-2 text-neutral-600 hover:text-neutral-900 transition-colors"
-                >
-                  <Phone className="w-5 h-5" />
-                </a>
-              </div>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <a
+                href={`tel:${otherUser?.phone}`}
+                className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <Phone size={20} />
+              </a>
             </div>
           </div>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 max-w-4xl mx-auto w-full px-4 py-4 overflow-y-auto">
-          <div className="space-y-4">
-            {/* Service Request Header */}
-            <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
-              <div className="flex items-center mb-2">
-                <MapPin className="w-4 h-4 text-neutral-500 mr-1" />
-                <span className="text-sm text-neutral-600">
-                  {typeof request.location === 'object' && request.location?.name 
-                    ? request.location.name 
-                    : request.location || 'Location unavailable'}
-                </span>
-                <span className="ml-2 text-sm text-neutral-500">•</span>
-                <span className="ml-2 text-sm text-neutral-500">{formatTimeAgo(request.timestamp)}</span>
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {messages.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Send size={24} className="text-gray-400" />
               </div>
-              <h3 className="font-medium text-text-900 mb-1">{request.service} Request</h3>
-              <p className="text-sm text-neutral-700">Chat with your service provider to discuss details and pricing.</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No messages yet</h3>
+              <p className="text-gray-600 text-sm">Start the conversation by sending a message.</p>
             </div>
-
-            {/* Chat Messages */}
-            {messages.map((msg, index) => {
-              const isCurrentUser = msg.senderId === currentUser.id;
-              const isStatusMessage = msg.type === 'status';
+          ) : (
+            messages.map((msg, index) => {
+              const isOwnMessage = msg.senderId === currentUser?.id;
+              const showDate = index === 0 || 
+                formatDate(msg.timestamp) !== formatDate(messages[index - 1]?.timestamp);
               
-              if (isStatusMessage) {
-                return (
-                  <div key={index} className="flex justify-center">
-                    <div className="bg-accent-50 text-accent-700 px-3 py-1 rounded-full text-sm border border-accent-200">
-                      {msg.message}
-                    </div>
-                  </div>
-                );
-              }
-
               return (
-                <div key={index} className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-bubble ${
-                    isCurrentUser
-                      ? 'bg-accent-500 text-white'
-                      : 'bg-white text-text-900 border border-neutral-200'
-                  }`}>
-                    <p className="text-sm">{msg.message}</p>
-                    <p className={`text-xs mt-1 ${
-                      isCurrentUser ? 'text-accent-100' : 'text-neutral-500'
-                    }`}>
-                      {formatTimeAgo(msg.timestamp)}
-                    </p>
+                <div key={index}>
+                  {showDate && (
+                    <div className="text-center mb-4">
+                      <span className="bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full">
+                        {formatDate(msg.timestamp)}
+                      </span>
+                    </div>
+                  )}
+                  
+                  <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-xs ${isOwnMessage ? 'order-2' : 'order-1'}`}>
+                      <div className={`chat-bubble ${isOwnMessage ? 'sent' : 'received'}`}>
+                        {msg.type === 'system' ? (
+                          <div className="text-center text-sm opacity-75">
+                            {msg.message}
+                          </div>
+                        ) : (
+                          <div>
+                            <p className="text-sm">{msg.message}</p>
+                            <p className="text-xs opacity-75 mt-1">
+                              {formatTime(msg.timestamp)}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               );
-            })}
-
-            {/* Job Completion Prompt */}
-            {request.status === 'completed' && userRole === 'customer' && (
-              <div className="bg-white rounded-lg p-4 border border-neutral-200">
-                <h3 className="font-medium text-text-900 mb-3">Has the job been completed?</h3>
-                <div className="flex space-x-3">
-                  <button
-                    onClick={() => handleCustomerConfirmation(true)}
-                    className="flex items-center px-4 py-2 bg-success-500 text-white rounded-lg font-medium hover:bg-success-600 transition-colors"
-                  >
-                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                    Yes
-                  </button>
-                  <button
-                    onClick={() => handleCustomerConfirmation(false)}
-                    className="px-4 py-2 border border-neutral-300 text-neutral-700 rounded-lg hover:bg-neutral-50 transition-colors"
-                  >
-                    No
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
-          </div>
+            })
+          )}
+          <div ref={messagesEndRef} />
         </div>
 
-        {/* Message Input */}
-        <div className="bg-white border-t border-neutral-200 sticky bottom-0">
-          <div className="max-w-4xl mx-auto px-4 py-3">
-            <div className="flex items-center space-x-3">
-              <form onSubmit={handleSendMessage} className="flex-1 flex space-x-2">
-                <input
-                  type="text"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Type a message..."
-                  className="flex-1 px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
-                />
-                <button
-                  type="submit"
-                  disabled={!message.trim()}
-                  className="px-4 py-2 bg-accent-500 text-white rounded-lg hover:bg-accent-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Send className="w-5 h-5" />
-                </button>
-              </form>
-            </div>
-          </div>
+        {/* Input */}
+        <div className="bg-white border-t border-gray-200 p-4">
+          <form onSubmit={handleSendMessage} className="flex space-x-3">
+            <input
+              type="text"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Type a message..."
+              className="input flex-1"
+            />
+            <button
+              type="submit"
+              disabled={!message.trim()}
+              className="w-12 h-12 bg-primary-600 text-white rounded-xl flex items-center justify-center hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Send size={20} />
+            </button>
+          </form>
         </div>
 
         {/* Completion Modal */}

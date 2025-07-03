@@ -50,7 +50,7 @@ export default function RequestsTab() {
     }
   }, [getUserRequests]);
 
-    // Mock data for demonstration (remove this when real data is available)
+  // Mock data for demonstration (remove this when real data is available)
   useEffect(() => {
     try {
       if (requests.length === 0 && currentUser?.id) {
@@ -151,17 +151,17 @@ export default function RequestsTab() {
   const getStatusColor = (status) => {
     switch (status) {
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'status-pending';
       case 'accepted':
-        return 'bg-blue-100 text-blue-800';
+        return 'status-accepted';
       case 'en_route':
-        return 'bg-purple-100 text-purple-800';
+        return 'status-en-route';
       case 'completed':
-        return 'bg-green-100 text-green-800';
+        return 'status-completed';
       case 'cancelled':
-        return 'bg-red-100 text-red-800';
+        return 'status-pending';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'status-pending';
     }
   };
 
@@ -200,44 +200,27 @@ export default function RequestsTab() {
   };
 
   const handleAcceptRequest = (requestId) => {
-    console.log(`🔍 REQUESTS: Accepting request ${requestId}`);
+    console.log('🔍 REQUESTS TAB: Accepting request:', requestId);
     updateRequestStatus(requestId, 'accepted');
-    
-    // Add a chat message to notify the customer
-    addChatMessage(requestId, {
-      sender: currentUser?.id,
-      text: 'I have accepted your request. I will start the job soon.',
-      type: 'system'
-    });
-    
-    // Show start job prompt
-    const request = requests.find(req => req.id === requestId);
-    if (request) {
-      console.log(`🔍 REQUESTS: Showing start job prompt for request ${requestId}`);
-      setSelectedRequest(request);
-      setShowStartPrompt(true);
-    }
   };
 
   const handleStartJob = async () => {
-    if (!selectedRequest) return;
-    
-    console.log(`🔍 REQUESTS: Starting job for request ${selectedRequest.id}`);
-    const success = startTracking(selectedRequest.id);
-    if (success) {
-      console.log(`🔍 REQUESTS: Successfully started job for request ${selectedRequest.id}`);
-      
-      // Add a chat message to notify the customer
-      addChatMessage(selectedRequest.id, {
-        sender: currentUser?.id,
-        text: 'I am now on my way to your location.',
-        type: 'system'
-      });
-      
-      setShowStartPrompt(false);
-      setSelectedRequest(null);
-    } else {
-      console.log(`🔍 REQUESTS: Failed to start job for request ${selectedRequest.id}`);
+    if (selectedRequest) {
+      console.log('🔍 REQUESTS TAB: Starting job for request:', selectedRequest.id);
+      const success = startTracking(selectedRequest.id);
+      if (success) {
+        // Add a system message to chat
+        addChatMessage(selectedRequest.id, {
+          senderId: 'system',
+          senderType: 'system',
+          message: 'Provider has started the job and is on the way.',
+          type: 'system'
+        });
+        setShowStartPrompt(false);
+        setSelectedRequest(null);
+      } else {
+        console.error('🔍 REQUESTS TAB: Failed to start tracking');
+      }
     }
   };
 
@@ -247,18 +230,8 @@ export default function RequestsTab() {
   };
 
   const handleCompleteJob = (requestId) => {
-    console.log(`🔍 REQUESTS: Provider marking job as complete for request ${requestId}`);
+    console.log('🔍 REQUESTS TAB: Completing job:', requestId);
     updateRequestStatus(requestId, 'completed');
-    stopTracking(requestId);
-    
-    // Add a chat message to notify the customer
-    addChatMessage(requestId, {
-      sender: currentUser?.id,
-      text: 'I have completed the job. Please confirm the completion and leave a review.',
-      type: 'system'
-    });
-    
-    console.log(`🔍 REQUESTS: Job marked as complete. Customer should now confirm and review.`);
   };
 
   const handleMessage = (requestId) => {
@@ -266,7 +239,6 @@ export default function RequestsTab() {
   };
 
   const formatTimeAgo = (timestamp) => {
-    if (!timestamp) return '';
     const now = new Date();
     const diff = now - new Date(timestamp);
     const minutes = Math.floor(diff / (1000 * 60));
@@ -282,7 +254,7 @@ export default function RequestsTab() {
   };
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="space-y-4">
       {/* Start Job Prompt */}
       {showStartPrompt && selectedRequest && (
         <StartJobPrompt
@@ -309,8 +281,9 @@ export default function RequestsTab() {
           }}
         />
       )}
+
       {/* Header */}
-      <div>
+      <div className="card p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-2">Service Requests</h2>
         <p className="text-gray-600 text-sm">
           {userRole === 'customer' 
@@ -321,15 +294,15 @@ export default function RequestsTab() {
       </div>
 
       {/* Filters */}
-      <div className="flex space-x-2 overflow-x-auto pb-2">
+      <div className="flex space-x-1 bg-gray-100 p-1 rounded-xl">
         {filters.map((filter) => (
           <button
             key={filter.id}
             onClick={() => setActiveFilter(filter.id)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+            className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200 ${
               activeFilter === filter.id
-                ? 'bg-primary-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-white text-primary-600 shadow-sm'
+                : 'text-gray-600 hover:text-gray-800'
             }`}
           >
             {filter.label}
@@ -344,7 +317,7 @@ export default function RequestsTab() {
           const isTracked = isRequestTracked(request.id);
           
           return (
-            <div key={request.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <div key={request.id} className="card p-4">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
                   <h4 className="font-medium text-gray-900">{request.service}</h4>
@@ -363,7 +336,7 @@ export default function RequestsTab() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(request.status)}`}>
+                  <span className={`status-badge ${getStatusColor(request.status)}`}>
                     {getStatusIcon(request.status)}
                     <span className="ml-1">{getStatusText(request.status)}</span>
                   </span>
@@ -373,7 +346,7 @@ export default function RequestsTab() {
 
               {/* Status-specific information */}
               {request.status === 'accepted' && (
-                <div className="bg-blue-50 rounded-lg p-3 mb-3">
+                <div className="bg-blue-50 rounded-xl p-3 mb-3">
                   <div className="flex items-center space-x-2">
                     <User size={16} className="text-blue-600" />
                     <span className="text-sm text-blue-800 font-medium">
@@ -388,7 +361,7 @@ export default function RequestsTab() {
 
               {request.status === 'en_route' && userRole === 'customer' && (
                 <div className="mb-3">
-                  <div className="bg-purple-50 rounded-lg p-3 mb-3">
+                  <div className="bg-purple-50 rounded-xl p-3 mb-3">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center space-x-2">
                         <Navigation size={16} className="text-purple-600" />
@@ -411,7 +384,7 @@ export default function RequestsTab() {
               )}
 
               {request.status === 'en_route' && userRole === 'provider' && (
-                <div className="bg-purple-50 rounded-lg p-3 mb-3">
+                <div className="bg-purple-50 rounded-xl p-3 mb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <Navigation size={16} className="text-purple-600" />
@@ -429,10 +402,10 @@ export default function RequestsTab() {
               )}
 
               {request.status === 'completed' && userRole === 'provider' && (
-                <div className="bg-green-50 rounded-lg p-3 mb-3">
+                <div className="bg-success-50 rounded-xl p-3 mb-3">
                   <div className="flex items-center space-x-2">
-                    <CheckCircle size={16} className="text-green-600" />
-                    <span className="text-sm text-green-800 font-medium">
+                    <CheckCircle size={16} className="text-success-600" />
+                    <span className="text-sm text-success-800 font-medium">
                       Job completed. Waiting for customer confirmation and review.
                     </span>
                   </div>
@@ -440,10 +413,10 @@ export default function RequestsTab() {
               )}
 
               {request.status === 'completed' && userRole === 'customer' && (
-                <div className="bg-green-50 rounded-lg p-3 mb-3">
+                <div className="bg-success-50 rounded-xl p-3 mb-3">
                   <div className="flex items-center space-x-2">
-                    <CheckCircle size={16} className="text-green-600" />
-                    <span className="text-sm text-green-800 font-medium">
+                    <CheckCircle size={16} className="text-success-600" />
+                    <span className="text-sm text-success-800 font-medium">
                       Job completed! Please confirm and leave a review.
                     </span>
                   </div>
@@ -468,13 +441,13 @@ export default function RequestsTab() {
                   <>
                     <button
                       onClick={() => handleAcceptRequest(request.id)}
-                      className="flex-1 bg-primary-500 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors"
+                      className="btn-primary flex-1"
                     >
                       Accept Request
                     </button>
                     <button
                       onClick={() => updateRequestStatus(request.id, 'cancelled')}
-                      className="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                      className="btn-secondary flex-1"
                     >
                       Decline
                     </button>
@@ -487,7 +460,7 @@ export default function RequestsTab() {
                       setSelectedRequest(request);
                       setShowStartPrompt(true);
                     }}
-                    className="flex-1 bg-green-500 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors flex items-center justify-center"
+                    className="btn-success flex items-center justify-center flex-1"
                   >
                     <Play size={16} className="mr-1" />
                     Start Job Now
@@ -497,7 +470,7 @@ export default function RequestsTab() {
                 {userRole === 'provider' && request.status === 'en_route' && (
                   <button
                     onClick={() => handleCompleteJob(request.id)}
-                    className="flex-1 bg-green-500 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors flex items-center justify-center"
+                    className="btn-success flex items-center justify-center flex-1"
                   >
                     <StopCircle size={16} className="mr-1" />
                     Mark as Done
@@ -508,7 +481,7 @@ export default function RequestsTab() {
                 {userRole === 'customer' && request.status === 'en_route' && (
                   <button
                     onClick={() => console.log('Provider is on the way for request:', request.id)}
-                    className="flex-1 bg-purple-500 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-purple-600 transition-colors flex items-center justify-center"
+                    className="btn-primary flex items-center justify-center flex-1"
                   >
                     <Navigation size={16} className="mr-1" />
                     Provider En Route
@@ -521,7 +494,7 @@ export default function RequestsTab() {
                       setCompletedRequest(request);
                       setShowCompletionModal(true);
                     }}
-                    className="flex-1 bg-primary-500 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors flex items-center justify-center"
+                    className="btn-primary flex items-center justify-center flex-1"
                   >
                     <Star size={16} className="mr-1" />
                     Confirm & Review
@@ -532,7 +505,7 @@ export default function RequestsTab() {
                 {(request.status === 'accepted' || request.status === 'en_route') && (
                   <button
                     onClick={() => handleMessage(request.id)}
-                    className="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center"
+                    className="btn-secondary flex items-center justify-center"
                   >
                     <MessageSquare size={16} className="mr-1" />
                     Message
@@ -541,7 +514,7 @@ export default function RequestsTab() {
 
                 <button
                   onClick={() => console.log('View details for request:', request.id)}
-                  className="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                  className="btn-secondary"
                 >
                   View Details
                 </button>
@@ -552,7 +525,7 @@ export default function RequestsTab() {
       </div>
 
       {filteredRequests.length === 0 && (
-        <div className="text-center py-8">
+        <div className="card p-8 text-center">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <FileText size={24} className="text-gray-400" />
           </div>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { Clock, CheckCircle, MessageSquare, MapPin, Star, ArrowRight, Navigation } from 'lucide-react';
+import { Clock, CheckCircle, MessageSquare, MapPin, Star, ArrowRight, Navigation, TrendingUp, DollarSign, Users } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 
 export default function ProviderDashboard() {
@@ -21,6 +21,27 @@ export default function ProviderDashboard() {
   
   // Get active jobs (en_route requests)
   const activeJobs = requests.filter(req => req.status === 'en_route');
+
+  const stats = [
+    {
+      icon: TrendingUp,
+      label: 'This Week',
+      value: '₵2,450',
+      color: 'text-primary-600'
+    },
+    {
+      icon: Users,
+      label: 'Jobs Done',
+      value: '12',
+      color: 'text-success-600'
+    },
+    {
+      icon: Star,
+      label: 'Rating',
+      value: '4.8',
+      color: 'text-accent-600'
+    }
+  ];
 
   const handleRequestAction = (requestId, action) => {
     console.log(`${action} request ${requestId}`);
@@ -59,15 +80,15 @@ export default function ProviderDashboard() {
   const getStatusDisplay = (status) => {
     switch (status) {
       case 'pending':
-        return { text: 'Pending', class: 'bg-gray-100 text-gray-800' };
+        return { text: 'Pending', class: 'status-pending' };
       case 'accepted':
-        return { text: 'Accepted', class: 'bg-yellow-100 text-yellow-800' };
+        return { text: 'Accepted', class: 'status-accepted' };
       case 'en_route':
-        return { text: 'En Route', class: 'bg-blue-100 text-blue-800' };
+        return { text: 'En Route', class: 'status-en-route' };
       case 'completed':
-        return { text: 'Completed', class: 'bg-green-100 text-green-800' };
+        return { text: 'Completed', class: 'status-completed' };
       default:
-        return { text: 'Unknown', class: 'bg-gray-100 text-gray-800' };
+        return { text: 'Unknown', class: 'status-pending' };
     }
   };
 
@@ -87,26 +108,59 @@ export default function ProviderDashboard() {
   };
 
   return (
-    <div className="p-4 space-y-6">
+    <div className="space-y-6">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl p-4 text-white">
-        <h2 className="text-lg font-semibold mb-1">Good morning!</h2>
-        <p className="text-primary-100 text-sm">
-          You have {newRequests.length} new requests • {acceptedJobs.length} accepted jobs • {activeJobs.length} active jobs
-        </p>
+      <div className="card p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Good morning, {currentUser?.name?.split(' ')[0] || 'Provider'}!
+            </h1>
+            <p className="text-gray-600 mt-1">
+              You have {newRequests.length} new requests • {acceptedJobs.length} accepted jobs • {activeJobs.length} active jobs
+            </p>
+          </div>
+          <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
+            <span className="text-primary-600 font-bold text-lg">
+              {currentUser?.name?.charAt(0) || 'P'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-3 gap-3">
+        {stats.map((stat, index) => {
+          const Icon = stat.icon;
+          return (
+            <div key={index} className="card p-4 text-center">
+              <Icon size={24} className={`mx-auto mb-2 ${stat.color}`} />
+              <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+              <div className="text-xs text-gray-600">{stat.label}</div>
+            </div>
+          );
+        })}
       </div>
 
       {/* New Requests */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">New Requests</h3>
+      <div className="card p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">New Requests</h2>
+          <span className="status-badge status-pending">{newRequests.length}</span>
+        </div>
+        
         {newRequests.length === 0 ? (
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
-            <p className="text-gray-500">No new requests at the moment</p>
+          <div className="text-center py-8">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Clock size={24} className="text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No new requests</h3>
+            <p className="text-gray-600 text-sm">New service requests will appear here</p>
           </div>
         ) : (
           <div className="space-y-3">
             {newRequests.map((request) => (
-              <div key={request.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+              <div key={request.id} className="p-4 bg-gray-50 rounded-xl">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <h4 className="font-medium text-gray-900">{request.customerName || 'Customer'}</h4>
@@ -129,13 +183,13 @@ export default function ProviderDashboard() {
                 <div className="flex space-x-2">
                   <button
                     onClick={() => handleRequestAction(request.id, 'accept')}
-                    className="flex-1 bg-primary-500 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors"
+                    className="btn-primary flex-1"
                   >
                     Accept
                   </button>
                   <button
                     onClick={() => handleRequestAction(request.id, 'message')}
-                    className="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center"
+                    className="btn-secondary flex items-center justify-center"
                   >
                     <MessageSquare size={16} className="mr-1" />
                     Message
@@ -148,11 +202,19 @@ export default function ProviderDashboard() {
       </div>
 
       {/* Accepted Jobs */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Accepted Jobs</h3>
+      <div className="card p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">Accepted Jobs</h2>
+          <span className="status-badge status-accepted">{acceptedJobs.length}</span>
+        </div>
+        
         {acceptedJobs.length === 0 ? (
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
-            <p className="text-gray-500">No accepted jobs at the moment</p>
+          <div className="text-center py-8">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle size={24} className="text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No accepted jobs</h3>
+            <p className="text-gray-600 text-sm">Accepted requests will appear here</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -161,7 +223,7 @@ export default function ProviderDashboard() {
               const progress = getProgressPercentage(job.status);
               
               return (
-                <div key={job.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <div key={job.id} className="p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <h4 className="font-medium text-gray-900">{job.customerName || 'Customer'}</h4>
@@ -172,7 +234,7 @@ export default function ProviderDashboard() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusInfo.class}`}>
+                      <span className={`status-badge ${statusInfo.class}`}>
                         {statusInfo.text}
                       </span>
                     </div>
@@ -203,14 +265,14 @@ export default function ProviderDashboard() {
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleJobAction(job.id, 'start')}
-                      className="flex-1 bg-primary-500 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors flex items-center justify-center"
+                      className="btn-primary flex items-center justify-center flex-1"
                     >
                       <Navigation size={16} className="mr-1" />
                       Start Job
                     </button>
                     <button
                       onClick={() => handleJobAction(job.id, 'message')}
-                      className="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center"
+                      className="btn-secondary flex items-center justify-center"
                     >
                       <MessageSquare size={16} className="mr-1" />
                       Chat
@@ -223,12 +285,20 @@ export default function ProviderDashboard() {
         )}
       </div>
 
-      {/* Active Jobs (En Route) */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Active Jobs</h3>
+      {/* Active Jobs */}
+      <div className="card p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">Active Jobs</h2>
+          <span className="status-badge status-en-route">{activeJobs.length}</span>
+        </div>
+        
         {activeJobs.length === 0 ? (
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
-            <p className="text-gray-500">No active jobs at the moment</p>
+          <div className="text-center py-8">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Navigation size={24} className="text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No active jobs</h3>
+            <p className="text-gray-600 text-sm">Jobs in progress will appear here</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -237,7 +307,7 @@ export default function ProviderDashboard() {
               const progress = getProgressPercentage(job.status);
               
               return (
-                <div key={job.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <div key={job.id} className="p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <h4 className="font-medium text-gray-900">{job.customerName || 'Customer'}</h4>
@@ -248,7 +318,7 @@ export default function ProviderDashboard() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusInfo.class}`}>
+                      <span className={`status-badge ${statusInfo.class}`}>
                         {statusInfo.text}
                       </span>
                     </div>
@@ -279,14 +349,14 @@ export default function ProviderDashboard() {
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleJobAction(job.id, 'complete')}
-                      className="flex-1 bg-green-500 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors flex items-center justify-center"
+                      className="btn-success flex items-center justify-center flex-1"
                     >
                       <CheckCircle size={16} className="mr-1" />
                       Mark Complete
                     </button>
                     <button
                       onClick={() => handleJobAction(job.id, 'message')}
-                      className="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center"
+                      className="btn-secondary flex items-center justify-center"
                     >
                       <MessageSquare size={16} className="mr-1" />
                       Chat
@@ -297,25 +367,6 @@ export default function ProviderDashboard() {
             })}
           </div>
         )}
-      </div>
-
-      {/* Quick Stats */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">This Week</h3>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary-600">₵2,450</div>
-              <div className="text-sm text-gray-600">Earnings</div>
-            </div>
-          </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">12</div>
-              <div className="text-sm text-gray-600">Jobs Completed</div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

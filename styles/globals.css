@@ -1,360 +1,204 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  html {
-    font-family: 'Inter', system-ui, sans-serif;
-  }
-  
-  .font-heading {
-    font-family: 'DM Serif Display', serif;
-  }
-  
-  .font-body {
-    font-family: 'Inter', sans-serif;
-  }
-  
-  .font-brand {
-    font-family: 'Manrope', sans-serif;
-  }
-  
-  body {
-    @apply bg-background-50 text-text-900;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-  
-  /* Allow text selection for inputs and content areas */
-  input, textarea, [contenteditable] {
-    -webkit-user-select: text;
-    -khtml-user-select: text;
-    -moz-user-select: text;
-    -ms-user-select: text;
-    user-select: text;
+:root {
+  --primary: #2B4C7E;
+  --accent: #2563EB;
+  --background: #F4F6FA;
+  --text: #111827;
+  --success: #10B981;
+  --error: #EF4444;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--background);
+  color: var(--text);
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: var(--background);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Mobile-first layout constraints */
+.mobile-container {
+  max-width: 28rem; /* md */
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+@media (min-width: 640px) {
+  .mobile-container {
+    padding: 1.5rem;
   }
 }
 
-@layer components {
-  .btn-primary {
-    @apply bg-primary-500 hover:bg-primary-600 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md;
-  }
-  
-  .btn-secondary {
-    @apply bg-accent-500 hover:bg-accent-600 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md;
-  }
-  
-  .btn-outline {
-    @apply border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md;
-  }
-  
-  .btn-ghost {
-    @apply text-neutral-600 hover:text-text-900 hover:bg-neutral-100 font-medium py-2.5 px-4 rounded-lg transition-all duration-200;
-  }
-  
-  .card {
-    @apply bg-white rounded-xl shadow-sm border border-neutral-200 text-text-900 p-4 sm:p-6;
-  }
-  
-  .card-hover {
-    @apply bg-white rounded-xl shadow-sm border border-neutral-200 text-text-900 p-4 sm:p-6 hover:shadow-md hover:border-primary-200 transition-all duration-200;
-  }
-  
-  .input-field {
-    @apply w-full px-3 py-2.5 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all duration-200 bg-white;
-  }
-  
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-  
-  .safe-area-inset-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  
-  /* Touch-friendly button styling */
-  .touch-target {
-    min-height: 44px;
-    min-width: 44px;
-  }
-
-  /* WhatsApp-like message bubbles */
-  .message-bubble {
-    @apply relative max-w-xs md:max-w-sm px-3 py-2 rounded-2xl shadow-sm;
-  }
-  
-  .message-bubble-sent {
-    @apply bg-accent-500 text-white;
-    border-bottom-right-radius: 4px;
-  }
-  
-  .message-bubble-received {
-    @apply bg-white text-text-900 border border-neutral-200;
-    border-bottom-left-radius: 4px;
-  }
-  
-  /* Custom typing animation for dots */
-  .typing-dot {
-    @apply w-2 h-2 bg-neutral-400 rounded-full;
-    animation: typing-bounce 1.4s infinite ease-in-out;
-  }
-  
-  .typing-dot:nth-child(1) {
-    animation-delay: -0.32s;
-  }
-  
-  .typing-dot:nth-child(2) {
-    animation-delay: -0.16s;
-  }
-  
-  /* Floating button with pulse */
-  .floating-btn {
-    @apply animate-pulse-location;
-  }
-  
-  /* Quick reply buttons */
-  .quick-reply {
-    @apply px-3 py-1.5 bg-neutral-100 text-neutral-700 text-sm rounded-full hover:bg-neutral-200 transition-all duration-200 transform hover:scale-105;
-  }
-  
-  /* Chat background pattern */
-  .chat-background {
-    background-color: #F4F6FA;
-    background-image: 
-      radial-gradient(circle at 25px 25px, rgba(37, 99, 235, 0.05) 2%, transparent 50%),
-      radial-gradient(circle at 75px 75px, rgba(37, 99, 235, 0.03) 2%, transparent 50%);
-    background-size: 100px 100px;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .message-bubble {
-      max-width: 85%;
-    }
-    
-    .card {
-      @apply p-4;
-    }
-    
-    .btn-primary,
-    .btn-secondary,
-    .btn-outline {
-      @apply py-2 px-3 text-sm;
-    }
-  }
-  
-  /* Status icons animations */
-  .status-icon {
-    @apply transition-colors duration-200;
-  }
-  
-  .status-seen {
-    @apply text-accent-500;
-  }
-  
-  .status-delivered {
-    @apply text-neutral-400;
-  }
-  
-  .status-sent {
-    @apply text-neutral-400;
-  }
-  
-  /* Responsive text utilities */
-  .text-responsive-xs {
-    @apply text-xs sm:text-sm;
-  }
-  
-  .text-responsive-sm {
-    @apply text-sm sm:text-base;
-  }
-  
-  .text-responsive-base {
-    @apply text-base sm:text-lg;
-  }
-  
-  .text-responsive-lg {
-    @apply text-lg sm:text-xl;
-  }
-  
-  .text-responsive-xl {
-    @apply text-xl sm:text-2xl;
-  }
-  
-  /* Responsive spacing utilities */
-  .space-responsive-xs {
-    @apply space-y-1 sm:space-y-2;
-  }
-  
-  .space-responsive-sm {
-    @apply space-y-2 sm:space-y-3;
-  }
-  
-  .space-responsive-base {
-    @apply space-y-3 sm:space-y-4;
-  }
-  
-  .space-responsive-lg {
-    @apply space-y-4 sm:space-y-6;
-  }
-  
-  /* Responsive padding utilities */
-  .p-responsive-sm {
-    @apply p-2 sm:p-3;
-  }
-  
-  .p-responsive-base {
-    @apply p-3 sm:p-4;
-  }
-  
-  .p-responsive-lg {
-    @apply p-4 sm:p-6;
-  }
-  
-  /* Responsive margin utilities */
-  .m-responsive-sm {
-    @apply m-2 sm:m-3;
-  }
-  
-  .m-responsive-base {
-    @apply m-3 sm:m-4;
-  }
-  
-  .m-responsive-lg {
-    @apply m-4 sm:m-6;
-  }
-  
-  /* Modern gradient backgrounds */
-  .gradient-primary {
-    @apply bg-gradient-to-r from-primary-500 to-accent-500;
-  }
-  
-  .gradient-secondary {
-    @apply bg-gradient-to-r from-neutral-600 to-neutral-700;
-  }
-  
-  .gradient-success {
-    @apply bg-gradient-to-r from-success-500 to-success-600;
-  }
-  
-  /* Modern shadows */
-  .shadow-modern {
-    @apply shadow-lg shadow-text-900/10;
-  }
-  
-  .shadow-modern-lg {
-    @apply shadow-xl shadow-text-900/15;
-  }
+/* Card styles */
+.card {
+  @apply bg-white rounded-2xl shadow-sm border border-gray-100;
 }
 
-@layer utilities {
-  /* Mobile-first utilities */
-  .touch-manipulation {
-    touch-action: manipulation;
-  }
-  
-  .select-none {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-  
-  .select-text {
-    -webkit-user-select: text;
-    -moz-user-select: text;
-    -ms-user-select: text;
-    user-select: text;
-  }
-  
-  /* Smooth scrolling */
-  .smooth-scroll {
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  /* Responsive grid utilities */
-  .grid-responsive-2 {
-    @apply grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6;
-  }
-  
-  .grid-responsive-3 {
-    @apply grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
-  }
-  
-  .grid-responsive-4 {
-    @apply grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5;
-  }
-  
-  /* Responsive flex utilities */
-  .flex-responsive-col {
-    @apply flex-col sm:flex-row;
-  }
-  
-  .flex-responsive-row {
-    @apply flex-row sm:flex-col;
-  }
-  
-  /* Responsive width utilities */
-  .w-responsive-sm {
-    @apply w-full sm:w-auto;
-  }
-  
-  .w-responsive-md {
-    @apply w-full md:w-auto;
-  }
-  
-  .w-responsive-lg {
-    @apply w-full lg:w-auto;
-  }
-  
-  /* Responsive height utilities */
-  .h-responsive-sm {
-    @apply h-auto sm:h-full;
-  }
-  
-  .h-responsive-md {
-    @apply h-auto md:h-full;
-  }
-  
-  .h-responsive-lg {
-    @apply h-auto lg:h-full;
-  }
-  
-  /* Responsive visibility utilities */
-  .hidden-responsive-sm {
-    @apply hidden sm:block;
-  }
-  
-  .hidden-responsive-md {
-    @apply hidden md:block;
-  }
-  
-  .hidden-responsive-lg {
-    @apply hidden lg:block;
-  }
-  
-  .block-responsive-sm {
-    @apply block sm:hidden;
-  }
-  
-  .block-responsive-md {
-    @apply block md:hidden;
-  }
-  
-  .block-responsive-lg {
-    @apply block lg:hidden;
-  }
+/* Button styles */
+.btn-primary {
+  @apply bg-primary-600 text-white font-medium py-3 px-4 rounded-xl hover:bg-primary-700 transition-colors duration-200;
+}
+
+.btn-secondary {
+  @apply bg-gray-100 text-gray-700 font-medium py-3 px-4 rounded-xl hover:bg-gray-200 transition-colors duration-200;
+}
+
+.btn-success {
+  @apply bg-success-500 text-white font-medium py-3 px-4 rounded-xl hover:bg-success-600 transition-colors duration-200;
+}
+
+.btn-danger {
+  @apply bg-error-500 text-white font-medium py-3 px-4 rounded-xl hover:bg-error-600 transition-colors duration-200;
+}
+
+/* Input styles */
+.input {
+  @apply w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200;
+}
+
+/* Status badges */
+.status-badge {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+}
+
+.status-pending {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.status-accepted {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.status-en-route {
+  @apply bg-purple-100 text-purple-800;
+}
+
+.status-completed {
+  @apply bg-success-100 text-success-800;
+}
+
+/* Bottom navigation */
+.bottom-nav {
+  @apply fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50;
+  max-width: 28rem;
+  margin: 0 auto;
+}
+
+.bottom-nav-item {
+  @apply flex flex-col items-center justify-center py-2 px-3 text-xs font-medium transition-colors duration-200;
+}
+
+.bottom-nav-item.active {
+  @apply text-primary-600;
+}
+
+.bottom-nav-item:not(.active) {
+  @apply text-gray-500 hover:text-gray-700;
+}
+
+/* Chat bubble styles */
+.chat-bubble {
+  @apply rounded-2xl px-4 py-2 max-w-xs;
+}
+
+.chat-bubble.sent {
+  @apply bg-primary-600 text-white;
+}
+
+.chat-bubble.received {
+  @apply bg-gray-100 text-gray-900;
+}
+
+/* Avatar styles */
+.avatar {
+  @apply rounded-full object-cover;
+}
+
+.avatar-sm {
+  @apply w-8 h-8;
+}
+
+.avatar-md {
+  @apply w-10 h-10;
+}
+
+.avatar-lg {
+  @apply w-12 h-12;
+}
+
+/* Portfolio grid */
+.portfolio-grid {
+  @apply grid grid-cols-3 gap-3;
+}
+
+.portfolio-item {
+  @apply aspect-square rounded-xl shadow-sm overflow-hidden bg-gray-100;
+}
+
+/* Floating action button */
+.fab {
+  @apply fixed bottom-20 right-4 w-14 h-14 bg-primary-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-primary-700 transition-colors duration-200 z-40;
+}
+
+/* Safe area for mobile */
+.safe-area {
+  padding-bottom: 5rem; /* Account for bottom nav */
+}
+
+/* Loading states */
+.skeleton {
+  @apply animate-pulse bg-gray-200 rounded-xl;
+}
+
+/* Toast notifications */
+.toast {
+  @apply fixed top-4 left-4 right-4 max-w-md mx-auto bg-white rounded-xl shadow-lg border border-gray-200 p-4 z-50;
+}
+
+/* Modal styles */
+.modal-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50;
+}
+
+.modal-content {
+  @apply bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto;
 }
